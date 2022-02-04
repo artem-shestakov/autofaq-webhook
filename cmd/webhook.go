@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -15,7 +16,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var confPath = flag.String("config", "./", "Path to the configuration file")
+
 func main() {
+	flag.Parse()
 	ctx := context.Background()
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
@@ -43,7 +47,7 @@ func main() {
 		}
 	}()
 
-	conf := config.LoadConfig("./", errc, warnc)
+	conf := config.LoadConfig(*confPath, errc, warnc)
 
 	// Create http server
 	srv, router := server.NewServer(conf.Server.Address+":"+conf.Server.Port, errc, infoc)

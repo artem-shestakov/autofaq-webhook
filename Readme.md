@@ -1,5 +1,15 @@
 # Simple webhook for [AutoFAQ async requests](https://redocly.github.io/redoc/?url=https://app.swaggerhub.com/apiproxy/registry/AutoFAQ.ai/external-api/2.1.4#operation/set_webhook)
 
+## How To
+```shell
+$ webhook [OPTIONS]
+```
+OPTIONS:
+```shell
+-config string
+    Path to the configuration file (default "./")
+```
+
 ## Configuration
 ### by File
 Use config.yaml file to configurate server. Where:
@@ -25,5 +35,4 @@ client:
 `CLIENT_URL` - webhook client url. Server send all AutoFAQ messages to that client. Default: `client.url`
 
 ## ToDo
-* Params from config file or env
 * Prometheus metrics
