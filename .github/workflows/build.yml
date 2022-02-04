@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches-ignore:
-      - '!main'
+      - '!v*.*.*'
 
 jobs:
   # If on main branch, build and release image.
