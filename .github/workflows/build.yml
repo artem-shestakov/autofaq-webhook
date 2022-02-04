@@ -2,13 +2,12 @@ name: Build
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches-ignore:
+      - '!main'
 
 jobs:
   # If on main branch, build and release image.
   release:
-    if: github.event.base_ref == 'main'
     name: Release
     runs-on: ubuntu-latest
 
