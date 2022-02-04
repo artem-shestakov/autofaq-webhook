@@ -8,7 +8,7 @@ on:
 jobs:
   # If on main branch, build and release image.
   release:
-    if: github.event.base_ref == 'refs/heads/main'
+    if: github.event.base_ref == 'main'
     name: Release
     runs-on: ubuntu-latest
 
