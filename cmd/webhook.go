@@ -22,10 +22,13 @@ func main() {
 	// Logging channels
 	errc := make(chan *apperror.Error)
 	infoc := make(chan string)
+	// warnc := make(chan string)
 
 	// New logger
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
+
+	// config.LoadConfig("./", errc, infoc)
 
 	// Create http server
 	srv, router := server.NewServer(":8000", errc, infoc)
@@ -40,6 +43,9 @@ func main() {
 			select {
 			case err := <-errc:
 				logger.Errorf("Msg: %s. DevMsg: %s", err.Msg, err.DevMsg)
+			// case warn := <-warnc:
+			// 	// logger.Warnln(warn)
+			// 	fmt.Println(warn)
 			case info := <-infoc:
 				logger.Infoln(info)
 			}

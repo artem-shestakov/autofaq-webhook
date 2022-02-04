@@ -32,8 +32,10 @@ func NewServer(addr string, errc chan *apperror.Error, infoc chan string) (*Serv
 }
 
 func (s *Server) Run() {
-	s.Infoc <- fmt.Sprintf("Server starting on %s", s.Addr)
+	s.Infoc <- fmt.Sprintf("Server starting on %s", s.HttpServer.Addr)
+	fmt.Println(">")
 	err := s.HttpServer.ListenAndServe()
+	fmt.Println(">>")
 	if err != nil {
 		s.Errc <- apperror.NewError("Can't start server", err.Error(), "0000", err)
 	}
