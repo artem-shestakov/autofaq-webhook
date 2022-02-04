@@ -17,7 +17,7 @@ type Config struct {
 	}
 }
 
-func LoadConfig(path string, errc chan *apperror.Error, warnc chan string) {
+func LoadConfig(path string, errc chan *apperror.Error, warnc chan string) *Config {
 	var config Config
 	setDefault()
 	viper.AutomaticEnv()
@@ -25,7 +25,7 @@ func LoadConfig(path string, errc chan *apperror.Error, warnc chan string) {
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
 		if notFoundErr, ok := err.(viper.ConfigFileNotFoundError); ok {
-			warnc <- notFoundErr.Error()
+			warnc <- fmt.Sprintf("%s. Using environment variables or default settings", notFoundErr)
 		} else {
 			errc <- apperror.NewError("Read config file error", err.Error(), "0000", err)
 		}
@@ -35,7 +35,7 @@ func LoadConfig(path string, errc chan *apperror.Error, warnc chan string) {
 	if err != nil {
 		errc <- apperror.NewError("Unmarshal config file error", err.Error(), "0000", err)
 	}
-	fmt.Println(config)
+	return &config
 }
 
 func setDefault() {
