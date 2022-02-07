@@ -11,7 +11,10 @@ import (
 	"github.com/artem-shestakov/autofaq-webhook/internal/apperror"
 	"github.com/artem-shestakov/autofaq-webhook/internal/config"
 	"github.com/artem-shestakov/autofaq-webhook/internal/handlers"
+	"github.com/artem-shestakov/autofaq-webhook/internal/prom"
 	"github.com/artem-shestakov/autofaq-webhook/internal/server"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/sirupsen/logrus"
 )
@@ -39,6 +42,7 @@ func main() {
 			select {
 			case err := <-errc:
 				logger.Errorf("Msg: %s. DevMsg: %s", err.Msg, err.DevMsg)
+				prom.Errors.With(prometheus.Labels{"code": err.Code}).Inc()
 			case warn := <-warnc:
 				logger.Warnln(warn)
 			case info := <-infoc:
@@ -55,6 +59,9 @@ func main() {
 	// Create and register handlers
 	afHandler := handlers.NewAutoFAQHandler(logger, errc, infoc)
 	afHandler.Register(router)
+
+	// Prometheus metrics
+	router.Handle("/metrics", promhttp.Handler())
 
 	// Start server
 	go srv.Run()

@@ -9,6 +9,8 @@ import (
 
 	"github.com/artem-shestakov/autofaq-webhook/internal/apperror"
 	"github.com/artem-shestakov/autofaq-webhook/internal/models"
+	"github.com/artem-shestakov/autofaq-webhook/internal/prom"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -32,7 +34,7 @@ func NewAutoFAQHandler(logger *logrus.Logger, errc chan *apperror.Error, infoc c
 
 // Register URLs
 func (h *afHandler) Register(router *mux.Router) {
-	router.HandleFunc("/", h.handleRequest)
+	router.HandleFunc("/webhook", h.handleRequest)
 }
 
 // Handle request from AutoFAQ
@@ -45,6 +47,7 @@ func (h *afHandler) handleRequest(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Send messages from AutoFAQ to webhook client
+	prom.ReceivedMessages.With(prometheus.Labels{}).Add(float64(len(messages.Messages)))
 	for _, message := range messages.Messages {
 		go h.sendCallback(message)
 	}
@@ -81,6 +84,7 @@ func (h *afHandler) sendCallback(message models.Message) {
 		}
 		if resp.StatusCode == 200 {
 			h.infoc <- fmt.Sprintf("Message sent. ID: %s. Conversation: %s", message.Id, message.ConversationId)
+			prom.SendMessages.With(prometheus.Labels{}).Inc()
 			break
 		} else {
 			if i <= 2 {
